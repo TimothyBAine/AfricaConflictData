@@ -1,3 +1,6 @@
+import warnings
+warnings.filterwarnings('ignore')
+
 import streamlit as st
 import plotly.express as px
 import klib
@@ -5,6 +8,7 @@ import pydeck as pdk
 import pandas as pd
 import numpy as np
 
+st.set_page_config(layout='wide')
 
 def getIndexes(dfObj, value):
     ''' Get index positions of value in dataframe i.e. dfObj.'''
@@ -28,6 +32,7 @@ st.title('Conflict data in Africa: 1997 to 2016')
 rows = 140748
 DATE_COLUMN = 'event_date'
 
+
 @st.cache
 def load_data(nrows):
     df = pd.read_csv(r"C:\Users\ainet\PycharmProjects\streamlit\conflict data.csv", nrows=nrows)
@@ -49,52 +54,53 @@ if st.checkbox('Show Data'):
     st.write(data)
 
 
-st.subheader('Map of all Conflicts')
-year_filter = st.slider('Year', 1997, 2016, 2016)
-location_df = data[['year', 'latitude', 'longitude']]
-filtered_data = location_df[location_df['year'] == year_filter]
-st.subheader(f'Map of all conflicts in {year_filter}')
-st.map(filtered_data)
 
-
-st.subheader(f'Fatalities per country in {year_filter}')
-year_df = data[data['year'] == year_filter]
-fatal = []
-for country in data['country'].unique():
-    fatal.append(round(year_df.loc[year_df['country'] == country, 'fatalities'].sum()))
-d = {'country': list(data['country'].unique()), 'fatalities': fatal}
-df1 = pd.DataFrame(d)
-print(df1)
-fig = px.bar(df1, x="country", y="fatalities")
-st.plotly_chart(fig, use_container_width=True)
-
-
-option = st.selectbox(
+col1, col2 = st.columns((10,10))
+with st.sidebar:
+    year_filter = st.slider('Year', 1997, 2016, 2016)
+    option = st.selectbox(
     'Select a country',
     data['country'].unique())
+    country_df = data[data['country'] == option]
+    st.text(f'Conflicts in {option} in {year_filter}')
+    st.metric('Average fatalities per conflict', round(country_df.loc[country_df['year'] == year_filter, 'fatalities'].mean(),1))
+    st.metric('Count of conflicts', (country_df.loc[country_df['year'] == year_filter, 'year'].sum())/year_filter)
 
-country_df = data[data['country'] == option]
-col1, col2 = st.columns(2)
+    table = pd.pivot_table(country_df, values='fatalities', index=['actor1'], columns=['year'], aggfunc=np.sum)
+    # print(table)
+    st.metric('Actors with most fatalities', table[year_filter].max(), getIndexes(table, table[year_filter].max())[0])
+
 with col1:
+    st.subheader('Map of all Conflicts')
+    location_df = data[['year', 'latitude', 'longitude']]
+    filtered_data = location_df[location_df['year'] == year_filter]
+    st.subheader(f'Map of all conflicts in {year_filter}')
+    st.map(filtered_data)
+
+
+
+with col2:
+    st.subheader(f'Fatalities per country in {year_filter}')
+    year_df = data[data['year'] == year_filter]
+    fatal = []
+    for country in data['country'].unique():
+        fatal.append(round(year_df.loc[year_df['country'] == country, 'fatalities'].sum()))
+    d = {'country': list(data['country'].unique()), 'fatalities': fatal}
+    df1 = pd.DataFrame(d)
+    # print(df1)
+    fig = px.bar(df1, x="country", y="fatalities")
+    st.plotly_chart(fig, use_container_width=True)
+
     fatal = []
     for year in range(1996, 2017):
         fatal.append(round(country_df.loc[country_df['year'] == year, 'fatalities'].sum()))
     d = {'year': list(np.arange(1996, 2017)), 'fatalities': fatal}
     df1 = pd.DataFrame(d)
-    print(df1)
+    # print(df1)
     st.subheader(f'Fatalities in {option}')
     fig = px.bar(df1, x="year", y="fatalities")
     st.plotly_chart(fig, use_container_width=True)
 
 
-with col2:
-    year = st.slider('year', 1997, 2016, 2016)
-    st.text(f'Conflicts in {option} in {year}')
-    st.metric('Average fatalities per conflict', round(country_df.loc[country_df['year'] == year, 'fatalities'].mean(),1))
-    st.metric('Count of conflicts', (country_df.loc[country_df['year'] == year, 'year'].sum())/year)
-
-    table = pd.pivot_table(country_df, values='fatalities', index=['actor1'], columns=['year'], aggfunc=np.sum)
-    print(table)
-    st.metric('Actors with most fatalities', table[year].max(), getIndexes(table, table[year].max())[0])
 
 
