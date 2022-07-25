@@ -35,7 +35,7 @@ DATE_COLUMN = 'event_date'
 
 @st.cache
 def load_data(nrows):
-    df = pd.read_csv(r"C:\Users\ainet\PycharmProjects\streamlit\conflict data.csv", nrows=nrows)
+    df = pd.read_csv(r"https://raw.githubusercontent.com/TimothyBAine/AfricaConflictData/main/conflict%20data.csv", nrows=nrows)
     data = klib.data_cleaning(df)
     data[DATE_COLUMN] = pd.to_datetime(data[DATE_COLUMN])
     return data
