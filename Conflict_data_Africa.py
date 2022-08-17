@@ -2,8 +2,6 @@ import warnings
 warnings.filterwarnings('ignore')
 
 import streamlit as st
-# import plotly.express as px
-import klib
 import pydeck as pdk
 import pandas as pd
 import numpy as np
@@ -36,7 +34,6 @@ DATE_COLUMN = 'event_date'
 @st.cache
 def load_data(nrows):
     df = pd.read_csv(r"https://raw.githubusercontent.com/TimothyBAine/AfricaConflictData/main/conflict%20data.csv", nrows=nrows)
-    data = klib.data_cleaning(df)
     data[DATE_COLUMN] = pd.to_datetime(data[DATE_COLUMN])
     return data
 
