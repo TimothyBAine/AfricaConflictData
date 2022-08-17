@@ -4,4 +4,3 @@ plotly.express==5.9.0
 pydeck>=0.7.1
 klib==1.0.1
 numpy>=1.23.0
-warnings
