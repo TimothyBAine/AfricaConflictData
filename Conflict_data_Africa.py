@@ -6,7 +6,7 @@ import pydeck as pdk
 import pandas as pd
 import numpy as np
 
-st.set_page_config(layout="wide", page_title="Africa Conflict Analysis", page_icon=":map:")
+st.set_page_config(layout="wide", page_title="Africa Conflict Analysis", page_icon=":earth_africa:")
 
 def getIndexes(dfObj, value):
     ''' Get index positions of value in dataframe i.e. dfObj.'''
